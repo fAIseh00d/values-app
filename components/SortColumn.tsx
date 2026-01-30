@@ -10,10 +10,13 @@ interface SortColumnProps {
   id: string;
   title: string;
   cardIds: string[];
+  targetCount?: number;
   colorClass: string;
+  isMobile?: boolean;
+  onMoveCard?: (cardId: string, direction: 'up' | 'down') => void;
 }
 
-export function SortColumn({ id, title, cardIds, colorClass }: SortColumnProps) {
+export function SortColumn({ id, title, cardIds, targetCount, colorClass, isMobile = false, onMoveCard }: SortColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   const cardData = cardIds.map(
@@ -43,7 +46,13 @@ export function SortColumn({ id, title, cardIds, colorClass }: SortColumnProps) 
         <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-3 transition-all duration-200">
             {cardData.map((value, index) => (
-              <ValueCard key={value.id} value={value} index={index} />
+              <ValueCard 
+                key={value.id} 
+                value={value} 
+                index={index} 
+                isMobile={isMobile}
+                onMoveCard={onMoveCard}
+              />
             ))}
           </div>
         </SortableContext>

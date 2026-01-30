@@ -11,9 +11,11 @@ import { ValueCard as ValueCardType } from "@/lib/values";
 interface ValueCardProps {
   value: ValueCardType;
   index: number;
+  isMobile?: boolean;
+  onMoveCard?: (cardId: string, direction: 'up' | 'down') => void;
 }
 
-export function ValueCard({ value, index }: ValueCardProps) {
+export function ValueCard({ value, index, isMobile = false, onMoveCard }: ValueCardProps) {
   const {
     attributes,
     listeners,
@@ -57,19 +59,51 @@ export function ValueCard({ value, index }: ValueCardProps) {
               </p>
             </div>
             
-            {/* Mobile: Info icon with tooltip */}
-            <div className="md:hidden flex-shrink-0">
-              <Tooltip content={value.description} side="left">
+            {/* Mobile: Movement controls */}
+            {isMobile && onMoveCard && (
+              <div className="md:hidden flex-shrink-0 flex flex-col gap-2">
                 <button
-                  className="p-1 rounded-full hover:bg-muted"
+                  className="p-2 rounded hover:bg-muted disabled:opacity-50"
                   onClick={(e) => {
                     e.stopPropagation();
+                    onMoveCard(value.id, 'up');
                   }}
+                  title="Move up"
                 >
-                  <Info className="h-4 w-4 text-muted-foreground" />
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+                  </svg>
                 </button>
-              </Tooltip>
-            </div>
+                <button
+                  className="p-2 rounded hover:bg-muted disabled:opacity-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoveCard(value.id, 'down');
+                  }}
+                  title="Move down"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            
+            {/* Desktop: Info icon with tooltip */}
+            {!isMobile && (
+              <div className="hidden md:flex-shrink-0">
+                <Tooltip content={value.description} side="left">
+                  <button
+                    className="p-1 rounded-full hover:bg-muted"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </Tooltip>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

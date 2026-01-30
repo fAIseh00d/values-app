@@ -15,7 +15,7 @@ export function IntroModal({ open, onClose }: IntroModalProps) {
         <DialogHeader>
           <DialogTitle className="text-2xl">Values Card Sort Exercise</DialogTitle>
           <DialogDescription className="text-base">
-            From "Stop Self-Sabotage" by Dr. Judy Ho
+            From &quot;Stop Self-Sabotage&quot; by Dr. Judy Ho
           </DialogDescription>
         </DialogHeader>
 
@@ -51,7 +51,7 @@ export function IntroModal({ open, onClose }: IntroModalProps) {
 
           <div className="bg-muted p-4 rounded-lg">
             <p className="text-sm text-muted-foreground italic">
-              "Goals that are firmly rooted in values will be that much more self-sabotage-proof."
+              &quot;Goals that are firmly rooted in values will be that much more self-sabotage-proof.&quot;
               <br />– Dr. Judy Ho
             </p>
           </div>

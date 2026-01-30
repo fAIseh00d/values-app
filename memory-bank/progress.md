@@ -4,10 +4,11 @@
   - ✅ GitHub Pages deployment pipeline functional
   - ✅ Tailwind CSS v4 with @tailwindcss/postcss configured
   - ✅ shadcn/ui components (Button, Dialog, Card, Tooltip) implemented
-  - ✅ 33 value cards data structure with all values from Dr. Judy Ho's exercise
+  - ✅ **Extracted card data to JSON** - All card data moved to `/data/values.json` for easy editing
+  - ✅ **Dynamic column balancing** - Automatically calculates distribution based on card count (33 cards = 11+11+11, 20 cards = 7+7+6, etc.)
   - ✅ Introductory modal with exercise instructions
   - ✅ Three-column drag-and-drop interface with @dnd-kit
-  - ✅ **Robust spill-over logic** - Automatically maintains 11 cards per column with smooth overflow/underflow handling
+  - ✅ **Robust spill-over logic** - Automatically maintains balanced distribution with smooth overflow/underflow handling
   - ✅ Responsive design (desktop and mobile)
   - ✅ Mobile tooltips for card descriptions
   - ✅ Reset functionality to shuffle cards
@@ -19,8 +20,9 @@
   
 - **What's left**: 
   - Manual testing in browser (desktop and mobile views) - verify drag-and-drop animations, spill-over logic, and persistent state
+  - Test with different card counts by editing the JSON file
   - Push to main and deploy to GitHub Pages
   
 - **Known issues**: None currently.
 
-- **Evolution**: Successfully built full-featured Values Card Sort web application with all planned features implemented. Fixed critical animation issue that prevented smooth cross-column dragging. Implemented robust spill-over logic that maintains perfect 11-card distribution across columns at all times. Added persistent state functionality so users don't lose their progress between sessions.
+- **Evolution**: Successfully built full-featured Values Card Sort web application with all planned features implemented. Fixed critical animation issue that prevented smooth cross-column dragging. Implemented robust spill-over logic that maintains perfect 11-card distribution across columns at all times. Added persistent state functionality so users don't lose their progress between sessions. Extracted card data to external JSON file and implemented dynamic column balancing system that automatically adapts to any number of cards.
