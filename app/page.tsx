@@ -24,6 +24,40 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RotateCcw } from "lucide-react";
 
+// Cookie utilities
+const setCookie = (name: string, value: string, days: number = 365) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+};
+
+const getCookie = (name: string): string | null => {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) {
+      return decodeURIComponent(c.substring(nameEQ.length, c.length));
+    }
+  }
+  return null;
+};
+
+// Save columns to cookies
+const saveColumnsToCookies = (columns: Columns) => {
+  try {
+    setCookie("valuesCardSortColumns", JSON.stringify(columns));
+  } catch (e) {
+    console.warn("Failed to save columns to cookies:", e);
+  }
+};
+
+// Clear saved cookies
+const clearSavedCookies = () => {
+  setCookie("valuesCardSortColumns", "", -1); // Expire immediately
+};
+
 type ColumnType = "mostImportant" | "moderatelyImportant" | "leastImportant";
 
 interface Columns {
@@ -46,9 +80,29 @@ export default function Home() {
   // Initialize on mount
   useEffect(() => {
     setMounted(true);
-    const initialized = initializeColumns();
-    const balancedColumns = balanceColumns(initialized);
-    setColumns(balancedColumns);
+    
+    // Try to load saved columns from cookies
+    const savedColumns = getCookie("valuesCardSortColumns");
+    let columnsToSet: Columns;
+    
+    if (savedColumns) {
+      try {
+        const parsed = JSON.parse(savedColumns);
+        // Validate the saved data structure
+        if (parsed.mostImportant && parsed.moderatelyImportant && parsed.leastImportant) {
+          columnsToSet = balanceColumns(parsed);
+        } else {
+          columnsToSet = balanceColumns(initializeColumns());
+        }
+      } catch (e) {
+        console.warn("Failed to parse saved columns, using default:", e);
+        columnsToSet = balanceColumns(initializeColumns());
+      }
+    } else {
+      columnsToSet = balanceColumns(initializeColumns());
+    }
+    
+    setColumns(columnsToSet);
 
     // Check if user has seen intro before
     const hasSeenIntro = localStorage.getItem("valuesCardSortIntroSeen");
@@ -172,6 +226,7 @@ export default function Home() {
       // Balance columns to maintain 11 cards per column
       const balancedColumns = balanceColumns(newColumns);
       setColumns(balancedColumns);
+      saveColumnsToCookies(balancedColumns);
     }
   };
 
@@ -225,6 +280,7 @@ export default function Home() {
         newColumns[sourceColumn] = arrayMove(columnCards, oldIndex, newIndex);
       }
       setColumns(newColumns);
+      saveColumnsToCookies(newColumns);
       setIsRebalancing(false);
     } else {
       // Cross-column move - trigger rebalancing animation
@@ -238,9 +294,7 @@ export default function Home() {
       
       // Use setTimeout to ensure animation plays
       setColumns(balancedColumns);
-      
-      // Use setTimeout to ensure animation plays
-      setColumns(newColumns);
+      saveColumnsToCookies(balancedColumns);
       setTimeout(() => setIsRebalancing(false), 250);
     }
   };
@@ -249,6 +303,8 @@ export default function Home() {
     const initialized = initializeColumns();
     const balancedColumns = balanceColumns(initialized);
     setColumns(balancedColumns);
+    saveColumnsToCookies(balancedColumns);
+    clearSavedCookies();
   };
 
   const activeValue = activeId ? values.find((v) => v.id === activeId) : null;

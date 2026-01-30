@@ -11,9 +11,10 @@
   - Successfully built production bundle
   - **Fixed drag-and-drop animation issue**: Added `onDragOver` handler to enable cross-column animations. Cards now animate smoothly when moving between columns, not just within columns.
   - **Implemented spill-over logic**: Created `balanceColumns` function that maintains 11 cards per column automatically. When a column exceeds 11 cards, overflow moves to the next column; when it has fewer than 11 cards, it pulls cards from the next column.
+  - **Added persistent state**: Card positions are now saved to cookies and restored automatically between sessions. Users won't lose their progress when they refresh or return to the site.
 
 - **Next steps**: 
-  1. Test drag-and-drop functionality in browser (verify cross-column animations and spill-over logic work)
+  1. Test drag-and-drop functionality in browser (verify cross-column animations, spill-over logic, and persistent state work)
   2. Push to main branch
   3. Verify GitHub Actions deployment to Pages
   4. Test live site
