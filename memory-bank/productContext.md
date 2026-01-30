@@ -1,5 +1,5 @@
 # Product Context
 
-- **Why it exists**: Developers need a zero-config path to publish Next.js App Router projects on GitHub Pages so documentation, marketing, or personal sites stay in sync with the repo without extra infrastructure.
-- **Problem solved**: GitHub Pages only serves static output, and Next.js defaults to hybrid server-side behavior; this setup forces `output: 'export'`, wires `PAGES_BASE_PATH`, and leans on GitHub Actions so the site stays compatible with GitHub Pages constraints.
-- **Expected behavior**: Authors push to `main`, GitHub Actions builds the export, and GitHub Pages serves the static files under the repository’s `<user>.github.io/<repo>/` path with HTTPS enabled.
+- **Why it exists**: To provide a digital version of Dr. Judy Ho's Values Card Sort exercise, making it accessible to anyone who wants to identify and prioritize their personal values without needing physical cards.
+- **Problem solved**: The physical card sort requires printing and cutting 33 cards; this web app replicates the tactile sorting experience digitally with drag-and-drop, works on any device, and helps users reflect on their values to inform goal-setting and decision-making.
+- **Expected behavior**: Users see an introductory modal explaining the exercise, then sort 33 value cards evenly across three columns (11 each) by dragging them. Cards auto-rearrange in a linked-list pattern (top-left to bottom-right). Mobile users get a responsive layout with tooltips for descriptions.

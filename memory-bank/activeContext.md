@@ -1,5 +1,17 @@
 # Active Context
 
-- **Current focus**: Document the repository state in the Memory Bank so future sessions can pick up quickly; this includes the Next.js GitHub Pages deployment pipeline that already successfully publishes the site via GitHub Actions.
-- **Recent changes**: None beyond the existing template; the user reports the site is hosted and working through the workflow described in `.github/workflows/deploy.yml`.
-- **Next steps**: Keep the static export approach aligned with GitHub Pages (especially if new routes or assets are added), and update this context if any new middleware, data fetching, or deployment tweaks are introduced.
+- **Current focus**: Values Card Sort web application is fully implemented and ready for testing/deployment.
+
+- **Recent changes**: 
+  - Installed Tailwind CSS v4, @dnd-kit, shadcn/ui dependencies
+  - Created all 33 value cards with data from Dr. Judy Ho's exercise
+  - Built IntroModal, ValueCard, SortColumn components
+  - Implemented main page with drag-and-drop logic and auto-balancing
+  - Configured Tailwind v4 with @import syntax
+  - Successfully built production bundle
+  
+- **Next steps**: 
+  1. Test application in browser (drag-and-drop, responsive design)
+  2. Push to main branch
+  3. Verify GitHub Actions deployment to Pages
+  4. Test live site

@@ -1,6 +1,8 @@
 # System Patterns
 
-- **Architecture**: App Router with `app/layout.tsx` providing the root HTML shell and `app/page.tsx` delivering the landing content. The `next.config.ts` enforces `output: 'export'` and derives `basePath` from `PAGES_BASE_PATH` so the static export matches GitHub Pages subdirectory routing.
-- **Build pipeline**: GitHub Actions workflow defined in `.github/workflows/deploy.yml` runs on pushes to `main` (plus manual dispatch), installs dependencies with `pnpm`, builds with `pnpm run build`, exports to `./out`, uploads the artifact, and finally publishes via `actions/deploy-pages@v4`.
-- **Deployment constraints**: GitHub Pages serves from the exported `out/` directory, so all dynamic logic must run at build time; caching uses `actions/cache` to persist `.next/cache` keyed on `pnpm-lock.yaml` and source files.
-- **Patterns to follow**: Keep components lean, pre-render everything statically, and document any future base path additions so `next.config.ts` and workflow env remain in sync.
+- **Architecture**: Client-side React app with App Router; `app/layout.tsx` provides root shell with Tailwind, `app/page.tsx` renders the card sort interface. All state management happens client-side (useState for card positions/columns).
+- **Data model**: 33 value cards stored as constant array with `{ id, name, description }`. Three columns represented as arrays of card IDs. Linked-list ordering: cards flow from column 1 → 2 → 3, filling top-to-bottom, left-to-right.
+- **Drag & Drop pattern**: @dnd-kit provides sortable contexts for each column. When a card moves, auto-rebalancing ensures 11 cards per column by shifting overflow to the next column.
+- **Responsive strategy**: Desktop shows full card descriptions; mobile hides descriptions by default and reveals via tooltip/tap. Three-column grid on desktop, stacked columns on mobile.
+- **Build pipeline**: Static export to `./out` via GitHub Actions; no server-side logic needed since all interactions are client-side.
+- **Patterns to follow**: Keep card data immutable, use React hooks for state, ensure accessibility (keyboard navigation, ARIA labels), test touch events on mobile.

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'Next.js on GitHub Pages',
-  description: 'Deploy your static Next.js site to GitHub Pages.',
+  title: 'Values Card Sort - Prioritize Your Personal Values',
+  description: 'An interactive card sorting exercise based on Dr. Judy Ho\'s Stop Self-Sabotage to help you identify and prioritize your personal values.',
 };
 
 export default function RootLayout({
@@ -12,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
