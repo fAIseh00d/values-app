@@ -41,21 +41,18 @@ export function ValueCard({ value, index }: ValueCardProps) {
         className={cn(
           "cursor-grab active:cursor-grabbing hover:shadow-lg bg-white",
           "transition-all duration-200 ease-out",
+          "h-32 md:h-40",
           isDragging && "opacity-30"
         )}
       >
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-sm md:text-base uppercase tracking-wide mb-1">
+        <CardContent className="p-4 h-full flex flex-col">
+          <div className="flex items-start justify-between gap-2 h-full">
+            <div className="flex-1 min-w-0 flex flex-col h-full">
+              <h3 className="font-bold text-sm md:text-base uppercase tracking-wide mb-1 flex-shrink-0">
                 {value.name}
               </h3>
-              {/* Desktop: Show full description */}
-              <p className="hidden md:block text-xs text-muted-foreground leading-relaxed">
-                {value.description}
-              </p>
-              {/* Mobile: Truncated description */}
-              <p className="md:hidden text-xs text-muted-foreground line-clamp-2">
+              {/* Description - responsive line clamp */}
+              <p className="text-xs text-muted-foreground leading-relaxed flex-1 overflow-hidden line-clamp-3 md:line-clamp-4">
                 {value.description}
               </p>
             </div>

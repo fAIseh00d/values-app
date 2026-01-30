@@ -77,3 +77,51 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Line clamp utilities for Tailwind v4 compatibility */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.line-clamp-4 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+/* Responsive line-clamp */
+@media (min-width: 768px) {
+  .md\:line-clamp-2 {
+    -webkit-line-clamp: 2;
+  }
+  
+  .md\:line-clamp-3 {
+    -webkit-line-clamp: 3;
+  }
+  
+  .md\:line-clamp-4 {
+    -webkit-line-clamp: 4;
+  }
+}
+
+/* Ensure consistent card heights */
+.card-container {
+  height: calc(8rem + 1rem); /* h-32 + padding */
+}
+
+@media (min-width: 768px) {
+  .card-container {
+    height: calc(10rem + 1rem); /* h-40 + padding */
+  }
+}
