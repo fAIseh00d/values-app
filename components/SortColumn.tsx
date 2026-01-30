@@ -36,12 +36,12 @@ export function SortColumn({ id, title, cardIds, colorClass }: SortColumnProps) 
       <div
         ref={setNodeRef}
         className={cn(
-          "flex-1 p-4 bg-muted/30 rounded-b-lg min-h-[500px] transition-colors",
+          "flex-1 p-4 bg-muted/30 rounded-b-lg min-h-[500px] transition-all duration-200",
           isOver && "bg-primary/10 ring-2 ring-primary"
         )}
       >
         <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-3">
+          <div className="space-y-3 transition-all duration-200">
             {cardData.map((value, index) => (
               <ValueCard key={value.id} value={value} index={index} />
             ))}

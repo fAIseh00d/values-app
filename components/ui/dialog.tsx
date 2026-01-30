@@ -32,8 +32,7 @@ export function DialogContent({ className, children, onClose, ...props }: Dialog
   return (
     <div
       className={cn(
-        "relative w-full max-w-lg mx-4 bg-background rounded-lg shadow-lg p-6",
-        "animate-in fade-in-0 zoom-in-95",
+        "relative w-full max-w-lg mx-4 bg-white rounded-lg shadow-2xl p-6 border border-gray-200",
         className
       )}
       {...props}

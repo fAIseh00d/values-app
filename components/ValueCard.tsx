@@ -21,19 +21,27 @@ export function ValueCard({ value, index }: ValueCardProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: value.id });
+  } = useSortable({ 
+    id: value.id,
+    animateLayoutChanges: () => true,
+    transition: {
+      duration: 200,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: transition || undefined,
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="will-change-transform">
       <Card
         className={cn(
-          "cursor-grab active:cursor-grabbing transition-all hover:shadow-lg",
-          isDragging && "opacity-50 shadow-2xl scale-105"
+          "cursor-grab active:cursor-grabbing hover:shadow-lg bg-white",
+          "transition-all duration-200 ease-out",
+          isDragging && "opacity-30"
         )}
       >
         <CardContent className="p-4">

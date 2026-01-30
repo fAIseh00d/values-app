@@ -6,7 +6,10 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  DragOverEvent,
   closestCenter,
+  pointerWithin,
+  rectIntersection,
   PointerSensor,
   TouchSensor,
   useSensor,
@@ -18,6 +21,7 @@ import { IntroModal } from "@/components/IntroModal";
 import { ValueCard } from "@/components/ValueCard";
 import { initializeColumns, values } from "@/lib/values";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { RotateCcw } from "lucide-react";
 
 type ColumnType = "mostImportant" | "moderatelyImportant" | "leastImportant";
@@ -37,12 +41,14 @@ export default function Home() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isRebalancing, setIsRebalancing] = useState(false);
 
   // Initialize on mount
   useEffect(() => {
     setMounted(true);
     const initialized = initializeColumns();
-    setColumns(initialized);
+    const balancedColumns = balanceColumns(initialized);
+    setColumns(balancedColumns);
 
     // Check if user has seen intro before
     const hasSeenIntro = localStorage.getItem("valuesCardSortIntroSeen");
@@ -70,11 +76,113 @@ export default function Home() {
     setActiveId(event.active.id as string);
   };
 
+  const balanceColumns = (columnsToBalance: Columns): Columns => {
+    const balancedColumns = { ...columnsToBalance };
+    const columnOrder: ColumnType[] = ["mostImportant", "moderatelyImportant", "leastImportant"];
+
+    // Balance from left to right
+    for (let i = 0; i < columnOrder.length; i++) {
+      const currentCol = columnOrder[i];
+      const nextCol = columnOrder[i + 1];
+
+      // If current column has more than 11, move overflow to next column
+      while (balancedColumns[currentCol].length > 11 && nextCol) {
+        const overflow = balancedColumns[currentCol].pop()!;
+        balancedColumns[nextCol].unshift(overflow);
+      }
+    }
+
+    // Balance from right to left (in case last column overflowed)
+    for (let i = columnOrder.length - 1; i > 0; i--) {
+      const currentCol = columnOrder[i];
+      const prevCol = columnOrder[i - 1];
+
+      // If current column has more than 11, move overflow to previous column
+      while (balancedColumns[currentCol].length > 11) {
+        const overflow = balancedColumns[currentCol].shift()!;
+        balancedColumns[prevCol].push(overflow);
+      }
+    }
+
+    // Fill underflow from next column
+    for (let i = 0; i < columnOrder.length - 1; i++) {
+      const currentCol = columnOrder[i];
+      const nextCol = columnOrder[i + 1];
+
+      while (balancedColumns[currentCol].length < 11 && balancedColumns[nextCol].length > 0) {
+        const card = balancedColumns[nextCol].shift()!;
+        balancedColumns[currentCol].push(card);
+      }
+    }
+
+    return balancedColumns;
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    
+    if (!over) {
+      return;
+    }
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    // Find which column the active card is in
+    let sourceColumn: ColumnType | null = null;
+    for (const [columnName, cardIds] of Object.entries(columns)) {
+      if (cardIds.includes(activeId)) {
+        sourceColumn = columnName as ColumnType;
+        break;
+      }
+    }
+
+    if (!sourceColumn) return;
+
+    // Determine target column
+    let targetColumn: ColumnType;
+    if (["mostImportant", "moderatelyImportant", "leastImportant"].includes(overId)) {
+      targetColumn = overId as ColumnType;
+    } else {
+      // Over a card, find which column it's in
+      targetColumn = sourceColumn;
+      for (const [columnName, cardIds] of Object.entries(columns)) {
+        if (cardIds.includes(overId)) {
+          targetColumn = columnName as ColumnType;
+          break;
+        }
+      }
+    }
+
+    // Only proceed if moving to a different column
+    if (sourceColumn !== targetColumn) {
+      const newColumns = { ...columns };
+
+      // Remove from source
+      newColumns[sourceColumn] = newColumns[sourceColumn].filter((id) => id !== activeId);
+
+      // Add to target
+      const targetIndex = newColumns[targetColumn].indexOf(overId);
+      if (targetIndex !== -1) {
+        newColumns[targetColumn].splice(targetIndex, 0, activeId);
+      } else {
+        newColumns[targetColumn].push(activeId);
+      }
+
+      // Balance columns to maintain 11 cards per column
+      const balancedColumns = balanceColumns(newColumns);
+      setColumns(balancedColumns);
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
 
-    if (!over) return;
+    if (!over) {
+      setIsRebalancing(false);
+      return;
+    }
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -116,64 +224,31 @@ export default function Home() {
       if (oldIndex !== -1 && newIndex !== -1) {
         newColumns[sourceColumn] = arrayMove(columnCards, oldIndex, newIndex);
       }
+      setColumns(newColumns);
+      setIsRebalancing(false);
     } else {
-      // Different column - move and rebalance
-      // Remove from source
-      newColumns[sourceColumn] = newColumns[sourceColumn].filter((id) => id !== activeId);
-
-      // Add to target
-      const targetIndex = newColumns[targetColumn].indexOf(overId);
-      if (targetIndex !== -1) {
-        newColumns[targetColumn].splice(targetIndex, 0, activeId);
-      } else {
-        newColumns[targetColumn].push(activeId);
-      }
-
-      // Auto-balance to maintain 11 cards per column
-      const columnOrder: ColumnType[] = ["mostImportant", "moderatelyImportant", "leastImportant"];
-
-      // Balance from left to right
-      for (let i = 0; i < columnOrder.length; i++) {
-        const currentCol = columnOrder[i];
-        const nextCol = columnOrder[i + 1];
-
-        // If current column has more than 11, move overflow to next column
-        while (newColumns[currentCol].length > 11 && nextCol) {
-          const overflow = newColumns[currentCol].pop()!;
-          newColumns[nextCol].unshift(overflow);
-        }
-      }
-
-      // Balance from right to left (in case last column overflowed)
-      for (let i = columnOrder.length - 1; i > 0; i--) {
-        const currentCol = columnOrder[i];
-        const prevCol = columnOrder[i - 1];
-
-        // If current column has more than 11, move overflow to previous column
-        while (newColumns[currentCol].length > 11) {
-          const overflow = newColumns[currentCol].shift()!;
-          newColumns[prevCol].push(overflow);
-        }
-      }
-
-      // Fill underflow from next column
-      for (let i = 0; i < columnOrder.length - 1; i++) {
-        const currentCol = columnOrder[i];
-        const nextCol = columnOrder[i + 1];
-
-        while (newColumns[currentCol].length < 11 && newColumns[nextCol].length > 0) {
-          const card = newColumns[nextCol].shift()!;
-          newColumns[currentCol].push(card);
-        }
-      }
+      // Cross-column move - trigger rebalancing animation
+      setIsRebalancing(true);
+      
+      // Note: The actual move was already handled in handleDragOver
+      // Now we just need to rebalance columns to maintain 11 cards each
+      
+      // Balance columns to maintain 11 cards per column
+      const balancedColumns = balanceColumns(newColumns);
+      
+      // Use setTimeout to ensure animation plays
+      setColumns(balancedColumns);
+      
+      // Use setTimeout to ensure animation plays
+      setColumns(newColumns);
+      setTimeout(() => setIsRebalancing(false), 250);
     }
-
-    setColumns(newColumns);
   };
 
   const handleReset = () => {
     const initialized = initializeColumns();
-    setColumns(initialized);
+    const balancedColumns = balanceColumns(initialized);
+    setColumns(balancedColumns);
   };
 
   const activeValue = activeId ? values.find((v) => v.id === activeId) : null;
@@ -218,11 +293,12 @@ export default function Home() {
           {/* Card Sort Area */}
           <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={rectIntersection}
             onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${isRebalancing ? 'animating' : ''}`}>
               <SortColumn
                 id="mostImportant"
                 title="Most Important"
@@ -245,9 +321,23 @@ export default function Home() {
 
             <DragOverlay>
               {activeValue ? (
-                <div className="rotate-3 scale-105">
-                  <ValueCard value={activeValue} index={0} />
-                </div>
+                <Card className="cursor-grabbing shadow-2xl rotate-3 scale-105 bg-white border-2 border-primary">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-sm md:text-base uppercase tracking-wide mb-1">
+                          {activeValue.name}
+                        </h3>
+                        <p className="hidden md:block text-xs text-muted-foreground leading-relaxed">
+                          {activeValue.description}
+                        </p>
+                        <p className="md:hidden text-xs text-muted-foreground line-clamp-2">
+                          {activeValue.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ) : null}
             </DragOverlay>
           </DndContext>
