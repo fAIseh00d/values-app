@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -8,7 +8,6 @@ import {
   DragStartEvent,
   DragOverEvent,
   closestCenter,
-  pointerWithin,
   rectIntersection,
   PointerSensor,
   TouchSensor,
@@ -19,10 +18,17 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { SortColumn } from "@/components/SortColumn";
 import { IntroModal } from "@/components/IntroModal";
 import { ValueCard } from "@/components/ValueCard";
-import { initializeColumns, values, calculateColumnDistribution } from "@/lib/values";
+import {
+  initializeColumns,
+  values,
+  calculateColumnDistribution,
+  getLocalizedValueMap,
+} from "@/lib/values";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RotateCcw } from "lucide-react";
+import { useLocale } from "@/lib/localeProvider";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 // Cookie utilities
 const setCookie = (name: string, value: string, days: number = 365) => {
@@ -67,6 +73,7 @@ interface Columns {
 }
 
 export default function Home() {
+  const { t, locale } = useLocale();
   const [columns, setColumns] = useState<Columns>({
     mostImportant: [],
     moderatelyImportant: [],
@@ -386,11 +393,11 @@ export default function Home() {
     clearSavedCookies();
   };
 
-  const activeValue = activeId ? values.find((v) => v.id === activeId) : null;
-  
+  const localizedValueMap = useMemo(() => getLocalizedValueMap(locale), [locale]);
+  const activeValue = activeId ? localizedValueMap[activeId] : null;
+
   // Calculate current distribution for display and info
   const distribution = calculateColumnDistribution(values.length);
-  const distributionText = `(${distribution.join('+')})`;
 
   if (!mounted) {
     return null; // Prevent hydration mismatch
@@ -398,25 +405,30 @@ export default function Home() {
 
   return (
     <>
-      <IntroModal open={showIntro} onClose={() => setShowIntro(false)} />
+      <IntroModal
+        open={showIntro}
+        onClose={() => setShowIntro(false)}
+        cardCount={values.length}
+        cardsPerColumn={distribution[0]}
+      />
 
       <main className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Values Card Sort
+              {t('app.title')}
             </h1>
             <p className="text-gray-600 mb-4">
-              Identify and prioritize your personal values
+              {t('app.subtitle')}
             </p>
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowIntro(true)}
               >
-                Show Instructions
+                {t('app.showInstructions')}
               </Button>
               <Button
                 variant="outline"
@@ -424,8 +436,9 @@ export default function Home() {
                 onClick={handleReset}
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Reset {values.length} Cards
+                {t('app.reset', { count: values.length })}
               </Button>
+              <LanguageSwitcher />
             </div>
           </div>
 
@@ -434,30 +447,33 @@ export default function Home() {
             <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${isRebalancing ? 'animating' : ''}`}>
               <SortColumn
                 id="mostImportant"
-                title="Most Important"
+                title={t('columns.mostImportant')}
                 cardIds={columns.mostImportant}
                 targetCount={distribution[0]}
                 colorClass="bg-gradient-to-r from-purple-600 to-indigo-600"
                 isMobile={isMobile}
                 onMoveCard={handleMoveCard}
+                valueMap={localizedValueMap}
               />
               <SortColumn
                 id="moderatelyImportant"
-                title="Moderately Important"
+                title={t('columns.moderatelyImportant')}
                 cardIds={columns.moderatelyImportant}
                 targetCount={distribution[1]}
                 colorClass="bg-gradient-to-r from-blue-500 to-cyan-500"
                 isMobile={isMobile}
                 onMoveCard={handleMoveCard}
+                valueMap={localizedValueMap}
               />
               <SortColumn
                 id="leastImportant"
-                title="Least Important"
+                title={t('columns.leastImportant')}
                 cardIds={columns.leastImportant}
                 targetCount={distribution[2]}
                 colorClass="bg-gradient-to-r from-gray-500 to-slate-500"
                 isMobile={isMobile}
                 onMoveCard={handleMoveCard}
+                valueMap={localizedValueMap}
               />
             </div>
           ) : (
@@ -471,30 +487,33 @@ export default function Home() {
               <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${isRebalancing ? 'animating' : ''}`}>
                 <SortColumn
                   id="mostImportant"
-                  title="Most Important"
+                  title={t('columns.mostImportant')}
                   cardIds={columns.mostImportant}
                   targetCount={distribution[0]}
                   colorClass="bg-gradient-to-r from-purple-600 to-indigo-600"
                   isMobile={isMobile}
                   onMoveCard={handleMoveCard}
+                  valueMap={localizedValueMap}
                 />
                 <SortColumn
                   id="moderatelyImportant"
-                  title="Moderately Important"
+                  title={t('columns.moderatelyImportant')}
                   cardIds={columns.moderatelyImportant}
                   targetCount={distribution[1]}
                   colorClass="bg-gradient-to-r from-blue-500 to-cyan-500"
                   isMobile={isMobile}
                   onMoveCard={handleMoveCard}
+                  valueMap={localizedValueMap}
                 />
                 <SortColumn
                   id="leastImportant"
-                  title="Least Important"
+                  title={t('columns.leastImportant')}
                   cardIds={columns.leastImportant}
                   targetCount={distribution[2]}
                   colorClass="bg-gradient-to-r from-gray-500 to-slate-500"
                   isMobile={isMobile}
                   onMoveCard={handleMoveCard}
+                  valueMap={localizedValueMap}
                 />
               </div>
 
@@ -523,10 +542,7 @@ export default function Home() {
           )}
           {/* Footer */}
           <div className="mt-8 text-center text-sm text-gray-600">
-            <p>
-              Based on the Values Card Sort exercise from{" "}
-              <span className="font-semibold">Stop Self-Sabotage</span> by Dr. Judy Ho
-            </p>
+            <p dangerouslySetInnerHTML={{ __html: t('footer.text') }} />
           </div>
         </div>
       </main>

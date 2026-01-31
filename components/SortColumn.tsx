@@ -3,8 +3,9 @@
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { ValueCard } from "./ValueCard";
-import { values } from "@/lib/values";
+import type { LocalizedValue } from "@/lib/values";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/localeProvider";
 
 interface SortColumnProps {
   id: string;
@@ -14,13 +15,15 @@ interface SortColumnProps {
   colorClass: string;
   isMobile?: boolean;
   onMoveCard?: (cardId: string, direction: 'up' | 'down') => void;
+  valueMap: Record<string, LocalizedValue>;
 }
 
-export function SortColumn({ id, title, cardIds, targetCount, colorClass, isMobile = false, onMoveCard }: SortColumnProps) {
+export function SortColumn({ id, title, cardIds, targetCount, colorClass, isMobile = false, onMoveCard, valueMap }: SortColumnProps) {
+  const { t } = useLocale();
   const { setNodeRef, isOver } = useDroppable({ id });
 
   const cardData = cardIds.map(
-    (cardId) => values.find((v) => v.id === cardId)!
+    (cardId) => valueMap[cardId] ?? { id: cardId, name: cardId, description: "" }
   );
 
   return (
@@ -31,7 +34,7 @@ export function SortColumn({ id, title, cardIds, targetCount, colorClass, isMobi
           {title}
         </h2>
         <p className="text-white/90 text-sm mt-1">
-          {cardIds.length} {cardIds.length === 1 ? "card" : "cards"}
+          {t('columns.cardsCount', { count: cardIds.length })}
         </p>
       </div>
 
@@ -46,10 +49,10 @@ export function SortColumn({ id, title, cardIds, targetCount, colorClass, isMobi
         <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-3 transition-all duration-200">
             {cardData.map((value, index) => (
-              <ValueCard 
-                key={value.id} 
-                value={value} 
-                index={index} 
+              <ValueCard
+                key={value.id}
+                value={value}
+                index={index}
                 isMobile={isMobile}
                 onMoveCard={onMoveCard}
               />
@@ -60,7 +63,7 @@ export function SortColumn({ id, title, cardIds, targetCount, colorClass, isMobi
         {/* Empty state */}
         {cardIds.length === 0 && (
           <div className="flex items-center justify-center h-full text-muted-foreground">
-            <p className="text-sm">Drop cards here</p>
+            <p className="text-sm">{t('columns.emptyState')}</p>
           </div>
         )}
       </div>

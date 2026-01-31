@@ -1,4 +1,12 @@
-export interface ValueCard {
+import { Locale } from '@/lib/i18n';
+
+export interface ValueEntry {
+  id: string;
+  names: Record<Locale, string>;
+  descriptions: Record<Locale, string>;
+}
+
+export interface LocalizedValue {
   id: string;
   name: string;
   description: string;
@@ -6,7 +14,19 @@ export interface ValueCard {
 
 // Import values from JSON file
 import valuesData from '@/data/values.json';
-export const values: ValueCard[] = valuesData;
+export const values: ValueEntry[] = valuesData;
+
+export function getLocalizedValues(locale: Locale): LocalizedValue[] {
+  return values.map((entry) => ({
+    id: entry.id,
+    name: entry.names[locale] ?? entry.names['en'],
+    description: entry.descriptions[locale] ?? entry.descriptions['en'],
+  }));
+}
+
+export function getLocalizedValueMap(locale: Locale): Record<string, LocalizedValue> {
+  return Object.fromEntries(getLocalizedValues(locale).map((value) => [value.id, value]));
+}
 
 // Utility function to calculate dynamic column distribution
 export function calculateColumnDistribution(totalCards: number): number[] {

@@ -6,16 +6,18 @@ import { Card, CardContent } from "./ui/card";
 import { Tooltip } from "./ui/tooltip";
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ValueCard as ValueCardType } from "@/lib/values";
+import type { LocalizedValue } from "@/lib/values";
+import { useLocale } from "@/lib/localeProvider";
 
 interface ValueCardProps {
-  value: ValueCardType;
+  value: LocalizedValue;
   index: number;
   isMobile?: boolean;
   onMoveCard?: (cardId: string, direction: 'up' | 'down') => void;
 }
 
 export function ValueCard({ value, index, isMobile = false, onMoveCard }: ValueCardProps) {
+  const { t } = useLocale();
   const {
     attributes,
     listeners,
@@ -23,7 +25,7 @@ export function ValueCard({ value, index, isMobile = false, onMoveCard }: ValueC
     transform,
     transition,
     isDragging,
-  } = useSortable({ 
+  } = useSortable({
     id: value.id,
     animateLayoutChanges: () => true,
     transition: {
@@ -58,7 +60,7 @@ export function ValueCard({ value, index, isMobile = false, onMoveCard }: ValueC
                 {value.description}
               </p>
             </div>
-            
+
             {/* Mobile: Movement controls */}
             {isMobile && onMoveCard && (
               <div className="md:hidden flex-shrink-0 flex flex-col gap-2">
@@ -68,7 +70,7 @@ export function ValueCard({ value, index, isMobile = false, onMoveCard }: ValueC
                     e.stopPropagation();
                     onMoveCard(value.id, 'up');
                   }}
-                  title="Move up"
+                  title={t('card.moveUp')}
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
@@ -80,7 +82,7 @@ export function ValueCard({ value, index, isMobile = false, onMoveCard }: ValueC
                     e.stopPropagation();
                     onMoveCard(value.id, 'down');
                   }}
-                  title="Move down"
+                  title={t('card.moveDown')}
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -88,7 +90,7 @@ export function ValueCard({ value, index, isMobile = false, onMoveCard }: ValueC
                 </button>
               </div>
             )}
-            
+
             {/* Desktop: Info icon with tooltip */}
             {!isMobile && (
               <div className="hidden md:flex-shrink-0">

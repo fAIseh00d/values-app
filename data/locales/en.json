@@ -1,0 +1,41 @@
+{
+  "app": {
+    "title": "Values Card Sort",
+    "subtitle": "Identify and prioritize your personal values",
+    "showInstructions": "Show Instructions",
+    "reset": "Reset {{count}} Cards"
+  },
+  "columns": {
+    "mostImportant": "Most Important",
+    "moderatelyImportant": "Moderately Important",
+    "leastImportant": "Least Important",
+    "cardsCount": "{{count}} cards",
+    "cardsCount_one": "{{count}} card",
+    "cardsCount_other": "{{count}} cards",
+    "emptyState": "Drop cards here"
+  },
+  "introModal": {
+    "title": "Values Card Sort Exercise",
+    "subtitle": "From \"Stop Self-Sabotage\" by Dr. Judy Ho",
+    "whatIsThis_title": "What is this?",
+    "whatIsThis_text": "This exercise helps you identify and prioritize your personal values. Values influence our behaviors and decision-making, making it easier to respond to circumstances, opportunities, and challenges with integrity and authenticity.",
+    "howToUse_title": "How to use this tool",
+    "howToUse_step1": "Sort {{cardCount}} value cards into three columns based on their importance to you",
+    "howToUse_step2": "Each column must have exactly {{cardsPerColumn}} cards",
+    "howToUse_step3": "Drag cards between columns to organize them",
+    "howToUse_step4": "Cards will automatically rebalance to maintain {{cardsPerColumn}} per column",
+    "howToUse_step5": "On mobile, tap cards to view their full descriptions",
+    "remember_title": "Remember",
+    "remember_text": "Rank these values based on your current priorities, right now in this moment. There are <strong>no right or wrong answers</strong> – just be honest with yourself. The goal is to help you make decisions and set goals that align with what truly matters to you.",
+    "quote": "\"Goals that are firmly rooted in values will be that much more self-sabotage-proof.\"",
+    "quoteAuthor": "– Dr. Judy Ho",
+    "startSorting": "Start Sorting"
+  },
+  "footer": {
+    "text": "Based on the Values Card Sort exercise from <span>Stop Self-Sabotage</span> by Dr. Judy Ho"
+  },
+  "card": {
+    "moveUp": "Move up",
+    "moveDown": "Move down"
+  }
+}
