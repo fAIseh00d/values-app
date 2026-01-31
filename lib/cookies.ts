@@ -38,6 +38,7 @@ export const saveColumnsToCookies = (columnsOrOrder: Columns | string[]) => {
 // Clear saved cookies
 export const clearSavedCookies = () => {
   setCookie("valuesCardSortColumns", "", -1); // Expire immediately
+  setCookie("bradleyTerrySortState", "", -1); // Clear BT state too
 };
 
 // Export Columns type for use in other files

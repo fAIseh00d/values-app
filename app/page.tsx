@@ -17,6 +17,7 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 import { SortColumn } from "@/components/SortColumn";
 import { IntroModal } from "@/components/IntroModal";
+import { BradleyTerrySortModal } from "@/components/BradleyTerrySortModal";
 import {
   values,
   calculateColumnDistribution,
@@ -25,7 +26,7 @@ import {
 } from "@/lib/values";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Sparkles } from "lucide-react";
 import { useLocale } from "@/lib/localeProvider";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
@@ -55,9 +56,11 @@ export default function Home() {
   });
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(false);
+  const [showBTSort, setShowBTSort] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isRebalancing, setIsRebalancing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [btResetKey, setBtResetKey] = useState(0); // Key to force BT modal remount on reset
   const currentOrder = useMemo(() => linkedListToArray(linkedList), [linkedList]);
   const columns = useMemo(() => columnsFromOrder(currentOrder), [currentOrder]);
 
@@ -289,6 +292,11 @@ export default function Home() {
     const shuffledOrder = shuffleArray(values.map((value) => value.id));
     setLinkedList(createLinkedListFromOrder(shuffledOrder));
     clearSavedCookies();
+    setBtResetKey(prev => prev + 1); // Force BT modal to remount and reinitialize
+  };
+
+  const handleBTSortComplete = (newOrder: string[]) => {
+    persistOrder(newOrder);
   };
 
   const localizedValueMap = useMemo(() => getLocalizedValueMap(locale), [locale]);
@@ -310,6 +318,15 @@ export default function Home() {
         cardsPerColumn={distribution[0]}
       />
 
+      <BradleyTerrySortModal
+        key={btResetKey}
+        open={showBTSort}
+        onClose={() => setShowBTSort(false)}
+        cardIds={currentOrder}
+        valueMap={localizedValueMap}
+        onComplete={handleBTSortComplete}
+      />
+
       <main className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -327,6 +344,15 @@ export default function Home() {
                 onClick={() => setShowIntro(true)}
               >
                 {t('app.showInstructions')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowBTSort(true)}
+                className="bg-gradient-to-r from-purple-100 to-indigo-100 hover:from-purple-200 hover:to-indigo-200 border-purple-300"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                {t('btSort.buttonText')}
               </Button>
               <Button
                 variant="outline"

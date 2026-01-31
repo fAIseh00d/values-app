@@ -16,11 +16,16 @@
   - ✅ **Persistent state via cookies** - Card positions are saved automatically and restored between sessions
 - ✅ **Canonical linked-list order** - Added `lib/linkedList.ts`, derive columns with `columnsFromOrder`, and persist the flattened sequence so every interaction updates a single authoritative order.
   - ✅ Build succeeds, dev server running on localhost:3000
+
+- ✅ **Bradley-Terry sorting mini game** with Bradley–Terry sampling, inconsistency score feedback, and cookie persistence to resume comparisons later
+- ✅ **Localized UI** for the new sorting modal and launch button in English and Russian
+- ✅ **Inconsistency detection** (surprise + contradiction signal) visualized so users can understand when their choices are noisy
 - 
-- **What's in progress**: Testing, deployment, and prepping pairwise prompt mechanics
+-- **What's in progress**: Testing (including the new Bradley-Terry game), deployment, and prepping pairwise prompt mechanics
   
 - **What's left**: 
   - Manual testing in browser (desktop and mobile views) - verify drag-and-drop animations, spill-over logic, and persistent state now that the order is list-backed.
+  - Verify Bradley-Terry game comparisons, inconsistency scoring, and cookie resume behavior across devices.
   - Test with different card counts by editing the JSON file.
   - Outline/pairwise prompt logic that relies on the canonical order before implementing auto sorting.
   - Push to main and deploy to GitHub Pages.

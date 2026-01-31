@@ -39,5 +39,31 @@
   "card": {
     "moveUp": "Переместить вверх",
     "moveDown": "Переместить вниз"
+  },
+  "btSort": {
+    "buttonText": "Сортировка сравнением",
+    "title": "Отсортируйте свои ценности",
+    "description": "Сравните пары ценностей, чтобы уточнить свой рейтинг. Выберите, какая ценность для вас важнее.",
+    "restart": "Начать заново",
+    "progress": "Анализ",
+    "comparisons": "сравнений",
+    "comparisonsAdaptive": "{{count}} сравнений",
+    "consistency": "Согласованность:",
+    "consistencyNormal": "Вы последовательны!",
+    "consistencyNoisy": "Обнаружены некоторые противоречия",
+    "consistencyHighlyInconsistent": "Обнаружено много противоречий",
+    "cyclesDetected": "{{count}} противоречий",
+    "top5Confidence": "Уверенность в топ-5",
+    "top11Confidence": "Уверенность в топ-11",
+    "adaptiveHint": "Процесс адаптируется к вашим ответам и остановится при достижении уверенности",
+    "chooseThis": "Выбрать это",
+    "completedTitle": "Сортировка завершена!",
+    "completedDescription": "Ваши ценности ранжированы на основе ваших сравнений.",
+    "completedDescriptionAdaptive": "Ранжирование завершено после {{count}} сравнений.",
+    "finalConsistency": "Итоговая согласованность:",
+    "topValuesPreview": "Топ-5 ценностей (предпросмотр):",
+    "cancel": "Отмена",
+    "applyRanking": "Применить рейтинг",
+    "initializing": "Инициализация..."
   }
 }

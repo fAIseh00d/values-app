@@ -37,5 +37,31 @@
   "card": {
     "moveUp": "Move up",
     "moveDown": "Move down"
+  },
+  "btSort": {
+    "buttonText": "Sort with Comparisons",
+    "title": "Sort Your Values",
+    "description": "Compare pairs of values to refine your ranking. Choose which value is more important to you.",
+    "restart": "Restart",
+    "progress": "Analyzing",
+    "comparisons": "comparisons",
+    "comparisonsAdaptive": "{{count}} comparisons so far",
+    "consistency": "Consistency:",
+    "consistencyNormal": "You're being consistent!",
+    "consistencyNoisy": "Some contradictions detected",
+    "consistencyHighlyInconsistent": "Many contradictions detected",
+    "cyclesDetected": "{{count}} contradictions",
+    "top5Confidence": "Top 5 confidence",
+    "top11Confidence": "Top 11 confidence",
+    "adaptiveHint": "The process adapts to your answers and stops when confident",
+    "chooseThis": "Choose This",
+    "completedTitle": "Sorting Complete!",
+    "completedDescription": "Your values have been ranked based on your comparisons.",
+    "completedDescriptionAdaptive": "Ranking complete after {{count}} comparisons.",
+    "finalConsistency": "Final Consistency:",
+    "topValuesPreview": "Top 5 Values (Preview):",
+    "cancel": "Cancel",
+    "applyRanking": "Apply Ranking",
+    "initializing": "Initializing..."
   }
 }
