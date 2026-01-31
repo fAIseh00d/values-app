@@ -299,6 +299,10 @@ export default function Home() {
     persistOrder(newOrder);
   };
 
+  const handleStartSorting = () => {
+    setShowBTSort(true);
+  };
+
   const localizedValueMap = useMemo(() => getLocalizedValueMap(locale), [locale]);
   const activeValue = activeId ? localizedValueMap[activeId] : null;
 
@@ -314,6 +318,7 @@ export default function Home() {
       <IntroModal
         open={showIntro}
         onClose={() => setShowIntro(false)}
+        onStartSorting={handleStartSorting}
         cardCount={values.length}
         cardsPerColumn={distribution[0]}
       />

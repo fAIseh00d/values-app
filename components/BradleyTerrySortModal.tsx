@@ -180,6 +180,7 @@ export function BradleyTerrySortModal({
 
   const inconsistencyLevel = getInconsistencyLevel(btState);
   const confidenceInfo = getConfidenceInfo(btState);
+  const projectedMax = getEffectiveMaxComparisons(btState);
 
   const getConsistencyText = (level: InconsistencyLevel): string => {
     switch (level) {
@@ -229,7 +230,7 @@ export function BradleyTerrySortModal({
               <div className="space-y-1">
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>{t("btSort.progress")}</span>
-                  <span>{t("btSort.comparisonsAdaptive", { count: btState.used })}</span>
+                  <span>{t("btSort.comparisonsProjected", { count: btState.used, max: projectedMax })}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -391,6 +392,12 @@ export function BradleyTerrySortModal({
             <div className="flex gap-3 justify-end">
               <Button variant="outline" onClick={handleCancel}>
                 {t("btSort.cancel")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleRestart}
+              >
+                {t("btSort.restart")}
               </Button>
               <Button
                 onClick={handleApplyRanking}

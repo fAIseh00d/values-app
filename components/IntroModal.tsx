@@ -7,11 +7,12 @@ import { useLocale } from "@/lib/localeProvider";
 interface IntroModalProps {
   open: boolean;
   onClose: () => void;
+  onStartSorting?: () => void;
   cardCount?: number;
   cardsPerColumn?: number;
 }
 
-export function IntroModal({ open, onClose, cardCount = 33, cardsPerColumn = 11 }: IntroModalProps) {
+export function IntroModal({ open, onClose, onStartSorting, cardCount = 33, cardsPerColumn = 11 }: IntroModalProps) {
   const { t } = useLocale();
 
   return (
@@ -57,7 +58,16 @@ export function IntroModal({ open, onClose, cardCount = 33, cardsPerColumn = 11 
         </div>
 
         <DialogFooter>
-          <Button onClick={onClose} size="lg" className="w-full sm:w-auto">
+          <Button
+            onClick={() => {
+              if (onStartSorting) {
+                onStartSorting();
+              }
+              onClose();
+            }}
+            size="lg"
+            className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          >
             {t('introModal.startSorting')}
           </Button>
         </DialogFooter>

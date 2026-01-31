@@ -3,22 +3,22 @@
     "id": "acceptance",
     "names": {
       "en": "ACCEPTANCE",
-      "ru": "ПРИЗНАНИЕ"
+      "ru": "ПРИНЯТИЕ"
     },
     "descriptions": {
       "en": "To be open and accepting of myself, others, and life events",
-      "ru": "Быть открытым и принимать себя, других и жизненные события"
+      "ru": "Принимать себя, других людей и жизненные обстоятельства такими, какие они есть"
     }
   },
   {
     "id": "adventure",
     "names": {
       "en": "ADVENTURE",
-      "ru": "ПРИКЛЮЧЕНИЕ"
+      "ru": "ПРИКЛЮЧЕНИЯ"
     },
     "descriptions": {
       "en": "To actively seek, create, or explore novel experiences",
-      "ru": "Активно искать, создавать или исследовать новые впечатления"
+      "ru": "Активно искать, создавать и переживать новый опыт"
     }
   },
   {
@@ -29,7 +29,7 @@
     },
     "descriptions": {
       "en": "To appreciate, create, nurture, and enjoy the arts",
-      "ru": "Ценить, создавать, поддерживать и наслаждаться искусством"
+      "ru": "Ценить красоту, создавать и поддерживать искусство, получать от него удовольствие"
     }
   },
   {
@@ -40,18 +40,18 @@
     },
     "descriptions": {
       "en": "To stand up for my rights and proactively and respectfully request what I want",
-      "ru": "Отстаивать свои права и проактивно, с уважением просить то, чего хочу"
+      "ru": "Уверенно отстаивать свои границы и уважительно заявлять о своих потребностях"
     }
   },
   {
     "id": "authenticity",
     "names": {
       "en": "AUTHENTICITY",
-      "ru": "АУТЕНТИЧНОСТЬ"
+      "ru": "ПОДЛИННОСТЬ"
     },
     "descriptions": {
       "en": "To act in ways that are consistent with my beliefs/desires despite external pressures",
-      "ru": "Действовать в соответствии с убеждениями и желаниями, несмотря на внешнее давление"
+      "ru": "Жить и действовать в соответствии со своими убеждениями и ценностями, несмотря на внешнее давление"
     }
   },
   {
@@ -62,18 +62,18 @@
     },
     "descriptions": {
       "en": "To be caring toward myself, others, and the environment",
-      "ru": "Заботиться о себе, других и окружающей среде"
+      "ru": "Проявлять заботу к себе, другим людям и окружающему миру"
     }
   },
   {
     "id": "challenge",
     "names": {
       "en": "CHALLENGE",
-      "ru": "ВЫЗОВ"
+      "ru": "ПРЕОДОЛЕНИЕ"
     },
     "descriptions": {
       "en": "To take on difficult tasks and encourage myself to grow, learn, and improve",
-      "ru": "Брать на себя сложные задачи и мотивировать себя расти, учиться и совершенствоваться"
+      "ru": "Браться за сложные задачи и сознательно развиваться, учиться и расти"
     }
   },
   {
@@ -84,7 +84,7 @@
     },
     "descriptions": {
       "en": "To take part in social or citizen groups and be part of something bigger than myself",
-      "ru": "Участвовать в социальных или гражданских группах и быть частью чего-то большего, чем я"
+      "ru": "Быть частью социальных или гражданских сообществ и ощущать принадлежность к чему-то большему"
     }
   },
   {
@@ -95,51 +95,51 @@
     },
     "descriptions": {
       "en": "To help, assist, or make lasting positive differences to others or myself",
-      "ru": "Помогать, поддерживать и приносить долгосрочные позитивные изменения кому-то или себе"
+      "ru": "Вносить значимый вклад и создавать устойчивые позитивные изменения для других и для себя"
     }
   },
   {
     "id": "courage",
     "names": {
       "en": "COURAGE",
-      "ru": "МУЖЕСТВО"
+      "ru": "СМЕЛОСТЬ"
     },
     "descriptions": {
       "en": "To be brave and to persist in the face of fear, threat, or difficulty",
-      "ru": "Быть смелым и упорно действовать перед лицом страха, угрозы или трудностей"
+      "ru": "Действовать смело и продолжать идти вперёд, несмотря на страх и трудности"
     }
   },
   {
     "id": "curiosity",
     "names": {
       "en": "CURIOSITY",
-      "ru": "ЛЮБОЗНАТЕЛЬНОСТЬ"
+      "ru": "ЛЮБОПЫТСТВО"
     },
     "descriptions": {
       "en": "To be open-minded and interested in discovering and learning new things",
-      "ru": "Быть открытым и заинтересованным в открытии и изучении нового"
+      "ru": "Проявлять открытость и интерес к изучению и открытию нового"
     }
   },
   {
     "id": "diligence",
     "names": {
       "en": "DILIGENCE",
-      "ru": "ПРИЛЕЖАНИЕ"
+      "ru": "УСЕРДИЕ"
     },
     "descriptions": {
       "en": "To be thorough and conscientious in what I do",
-      "ru": "Подходить к делу тщательно и добросовестно"
+      "ru": "Работать внимательно, последовательно и добросовестно"
     }
   },
   {
     "id": "faithfulness",
     "names": {
       "en": "FAITHFULNESS",
-      "ru": "ВЕРНОСТЬ"
+      "ru": "ПРЕДАННОСТЬ"
     },
     "descriptions": {
       "en": "To be loyal and true in my relationships with people and/or a higher power",
-      "ru": "Быть верным и искренним в отношениях с людьми и/или высшей силой"
+      "ru": "Оставаться преданным и надёжным в отношениях с людьми и/или высшими силами"
     }
   },
   {
@@ -150,7 +150,7 @@
     },
     "descriptions": {
       "en": "To maintain or improve the fitness and condition of my body and mind",
-      "ru": "Поддерживать или улучшать физическую и умственную форму"
+      "ru": "Поддерживать и укреплять физическое и психическое здоровье"
     }
   },
   {
@@ -161,7 +161,7 @@
     },
     "descriptions": {
       "en": "To be truthful and sincere with others and to have integrity in my actions",
-      "ru": "Говорить правду, быть искренним и поступать с честностью"
+      "ru": "Быть правдивым и искренним с другими людьми и действовать в соответствии со своими принципами"
     }
   },
   {
@@ -172,18 +172,18 @@
     },
     "descriptions": {
       "en": "To see and appreciate the humorous side of life",
-      "ru": "Видеть и ценить юмористическую сторону жизни"
+      "ru": "Замечать и ценить юмористическую сторону жизни"
     }
   },
   {
     "id": "humility",
     "names": {
       "en": "HUMILITY",
-      "ru": "СМЕРЕНИЕ"
+      "ru": "СМИРЕНИЕ"
     },
     "descriptions": {
       "en": "To be humble, modest, and unassuming",
-      "ru": "Быть скромным, умеренным и непритязательным"
+      "ru": "Проявлять скромность, умеренность и отсутствие самодовольства"
     }
   },
   {
@@ -194,7 +194,7 @@
     },
     "descriptions": {
       "en": "To be self-supportive, autonomous, and to choose my own way of doing things",
-      "ru": "Быть самостоятельным, автономным и выбирать собственный путь"
+      "ru": "Быть самостоятельным, опираться на себя и выбирать собственный способ действий"
     }
   },
   {
@@ -205,7 +205,7 @@
     },
     "descriptions": {
       "en": "To open up and share myself emotionally and physically in my relationships",
-      "ru": "Открыться и делиться собой эмоционально и физически в отношениях"
+      "ru": "Открыто делиться собой — эмоционально и физически — в близких отношениях"
     }
   },
   {
@@ -216,7 +216,7 @@
     },
     "descriptions": {
       "en": "To uphold fairness and righteousness for all",
-      "ru": "Отстаивать справедливость и правду для всех"
+      "ru": "Поддерживать честность, равенство и справедливость для всех"
     }
   },
   {
@@ -227,18 +227,18 @@
     },
     "descriptions": {
       "en": "To learn, use, share, and contribute valuable knowledge",
-      "ru": "Изучать, применять, делиться и приносить ценную информацию"
+      "ru": "Получать, применять, передавать и развивать ценные знания"
     }
   },
   {
     "id": "leisure",
     "names": {
       "en": "LEISURE",
-      "ru": "ОТДЫХ"
+      "ru": "ДОСУГ"
     },
     "descriptions": {
       "en": "To take time to pursue and enjoy various aspects of life",
-      "ru": "Находить время на занятия и наслаждение разными сторонами жизни"
+      "ru": "Выделять время для отдыха и получения удовольствия от разных сторон жизни"
     }
   },
   {
@@ -249,7 +249,7 @@
     },
     "descriptions": {
       "en": "To be competent in my everyday activities and pursuits",
-      "ru": "Быть компетентным в повседневных делах и стремлениях"
+      "ru": "Развивать высокий уровень компетентности в повседневной деятельности"
     }
   },
   {
@@ -260,29 +260,29 @@
     },
     "descriptions": {
       "en": "To live a life that is planned and organized",
-      "ru": "Жить спланированной и организованной жизнью"
+      "ru": "Строить упорядоченную и организованную жизнь"
     }
   },
   {
     "id": "persistence",
     "names": {
       "en": "PERSISTENCE",
-      "ru": "УПОРСТВО"
+      "ru": "НАСТОЙЧИВОСТЬ"
     },
     "descriptions": {
       "en": "To continue resolutely despite difficulties and challenges",
-      "ru": "Продолжать уверенно, несмотря на трудности и вызовы"
+      "ru": "Продолжать двигаться вперёд, несмотря на трудности и препятствия"
     }
   },
   {
     "id": "power",
     "names": {
       "en": "POWER",
-      "ru": "СИЛА"
+      "ru": "ВЛИЯНИЕ"
     },
     "descriptions": {
       "en": "To strongly influence or wield authority over others and projects",
-      "ru": "Сильно влиять и обладать властью над людьми и проектами"
+      "ru": "Оказывать значительное влияние на людей и процессы, брать на себя ответственность"
     }
   },
   {
@@ -293,29 +293,29 @@
     },
     "descriptions": {
       "en": "To treat others considerately and to be tolerant of those who differ from me",
-      "ru": "Относиться к другим с уважением и терпимостью к отличающимся от меня"
+      "ru": "Относиться к другим с вниманием и уважать различия между людьми"
     }
   },
   {
     "id": "self-control",
     "names": {
       "en": "SELF-CONTROL",
-      "ru": "САМОКОНТРОЛЬ"
+      "ru": "ДИСЦИПЛИНА"
     },
     "descriptions": {
       "en": "To exercise discipline over my behaviors for a higher good",
-      "ru": "Проявлять дисциплину в поведении ради более высокой цели"
+      "ru": "Осознанно управлять своим поведением ради долгосрочных целей"
     }
   },
   {
     "id": "self-esteem",
     "names": {
       "en": "SELF-ESTEEM",
-      "ru": "САМООЦЕНКА"
+      "ru": "САМОЦЕННОСТЬ"
     },
     "descriptions": {
       "en": "To feel good about my identity and to believe in my own worth",
-      "ru": "Хорошо ощущать себя и верить в собственную ценность"
+      "ru": "Принимать себя и ощущать собственную ценность как личности"
     }
   },
   {
@@ -326,7 +326,7 @@
     },
     "descriptions": {
       "en": "To grow and mature in the understanding of higher power(s)",
-      "ru": "Расти и углублять понимание высших сил"
+      "ru": "Развивать и углублять своё понимание духовных или высших смыслов"
     }
   },
   {
@@ -337,18 +337,18 @@
     },
     "descriptions": {
       "en": "To be loyal, sincere, and reliable",
-      "ru": "Быть верным, искренним и надежным"
+      "ru": "Быть надёжным, искренним и заслуживающим доверия"
     }
   },
   {
     "id": "virtue",
     "names": {
       "en": "VIRTUE",
-      "ru": "ДОБРОДЕТЕЛЬ"
+      "ru": "НРАВСТВЕННОСТЬ"
     },
     "descriptions": {
       "en": "To live a morally pure and honorable life",
-      "ru": "Вести нравственно чистую и благородную жизнь"
+      "ru": "Жить в соответствии с моральными принципами и внутренними ценностями"
     }
   },
   {
@@ -359,7 +359,7 @@
     },
     "descriptions": {
       "en": "To accumulate and possess financial prosperity",
-      "ru": "Накопить и иметь финансовое благосостояние"
+      "ru": "Достигать финансовой устойчивости и материального достатка"
     }
   }
 ]
