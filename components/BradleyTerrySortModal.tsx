@@ -19,6 +19,8 @@ import {
   getInconsistencyColor,
   getConfidenceInfo,
   getFinalRanking,
+  getEffectiveMaxComparisons,
+  hasExtendedComparisons,
   type BradleyTerryState,
   type InconsistencyLevel,
 } from "@/lib/bradleyTerry";

@@ -35,9 +35,13 @@ const BASE_LEARNING_RATE = 0.15;
 const WINDOW_SIZE = 5;
 const TOP_K_CRITICAL = 5;  // Top 5 must be rock solid
 const TOP_K_IMPORTANT = 11; // Top 11 matters for ordering
-const LIKELIHOOD_EPSILON = 0.01;
-const SIGMA_TOP5 = 0.15;    // Strict threshold for top 5
-const SIGMA_TOP11 = 0.25;   // Moderate threshold for top 6-11
+const LIKELIHOOD_EPSILON = 0.02;
+const SIGMA_TOP5 = 0.35;    // Achievable threshold for top 5 with ~40 comparisons
+const SIGMA_TOP11 = 0.5;    // Moderate threshold for top 6-11
+
+// Inconsistency handling
+const INCONSISTENCY_THRESHOLD = 0.1;  // Cycle ratio above which we extend comparisons
+const MAX_COMPARISONS_EXTENSION = 1.5;  // Extend max by 50% for inconsistent users
 
 export function initBradleyTerry(
   cardIds: string[],
@@ -65,8 +69,8 @@ export function initBradleyTerry(
     comparisonHistory: [],
     likelihoodHistory: [],
     rankHistory: [],
-    minComparisons: minComparisons ?? 20,
-    maxComparisons: maxComparisons ?? cardIds.length * 2,
+    minComparisons: minComparisons ?? Math.ceil(cardIds.length * 0.8), // ~26 for 33 cards
+    maxComparisons: maxComparisons ?? Math.ceil(cardIds.length * 2.0), // ~60 for 33 cards
     used: 0,
     allCardIds: cardIds,
     appearedCount,
@@ -294,51 +298,142 @@ export function updateAfterComparison(
 }
 
 /**
+ * Calculate variance of likelihood over a window
+ * More robust than comparing just two snapshots
+ */
+function calculateWindowVariance(values: number[], windowSize: number): number {
+  if (values.length < windowSize) return Infinity;
+  const recent = values.slice(-windowSize);
+  const mean = recent.reduce((a, b) => a + b, 0) / recent.length;
+  const variance = recent.reduce((sum, v) => sum + (v - mean) ** 2, 0) / recent.length;
+  return variance;
+}
+
+/**
+ * Calculate Kendall tau correlation between two rankings
+ * Returns value between -1 (perfectly reversed) and 1 (identical)
+ */
+function kendallTau(rankingA: string[], rankingB: string[]): number {
+  const n = rankingA.length;
+  if (n !== rankingB.length || n < 2) return 0;
+
+  // Create position maps
+  const posA = new Map(rankingA.map((id, idx) => [id, idx]));
+  const posB = new Map(rankingB.map((id, idx) => [id, idx]));
+
+  // Count concordant and discordant pairs
+  let concordant = 0;
+  let discordant = 0;
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const idI = rankingA[i]!;
+      const idJ = rankingA[j]!;
+
+      const posI_B = posB.get(idI);
+      const posJ_B = posB.get(idJ);
+
+      if (posI_B === undefined || posJ_B === undefined) continue;
+
+      // In rankingA: i comes before j (i < j)
+      // In rankingB: check if same order
+      if ((posI_B < posJ_B) === (i < j)) {
+        concordant++;
+      } else {
+        discordant++;
+      }
+    }
+  }
+
+  const totalPairs = (n * (n - 1)) / 2;
+  if (totalPairs === 0) return 0;
+
+  return (concordant - discordant) / totalPairs;
+}
+
+
+/**
+ * Get extended max comparisons based on inconsistency level
+ */
+function getExtendedMaxComparisons(state: BradleyTerryState): number {
+  const cycleRatio = state.used > 0 ? state.cycleCount / state.used : 0;
+
+  if (cycleRatio > INCONSISTENCY_THRESHOLD) {
+    // Extend max comparisons for inconsistent users
+    return Math.floor(state.maxComparisons * MAX_COMPARISONS_EXTENSION);
+  }
+
+  return state.maxComparisons;
+}
+
+/**
  * Check if stopping criteria are met
  */
 export function shouldStop(state: BradleyTerryState): boolean {
   // Hard minimum
   if (state.used < state.minComparisons) return false;
-  
-  // Hard maximum
-  if (state.used >= state.maxComparisons) return true;
-  
+
+  // Extended maximum based on inconsistency
+  const effectiveMax = getExtendedMaxComparisons(state);
+  if (state.used >= effectiveMax) return true;
+
   // Need enough history for window comparison
   if (state.likelihoodHistory.length < WINDOW_SIZE + 1) return false;
   if (state.rankHistory.length < WINDOW_SIZE + 1) return false;
 
-  // 1. Likelihood convergence
-  const currentLL = state.likelihoodHistory[state.likelihoodHistory.length - 1]!;
-  const pastLL = state.likelihoodHistory[state.likelihoodHistory.length - WINDOW_SIZE - 1]!;
-  const likelihoodConverged = Math.abs(currentLL - pastLL) < LIKELIHOOD_EPSILON;
-  
+  // Check inconsistency level - don't stop early if user is lying
+  const cycleRatio = state.used > 0 ? state.cycleCount / state.used : 0;
+  const isInconsistent = cycleRatio > INCONSISTENCY_THRESHOLD;
+
+  // 1. Likelihood convergence using window variance (not just snapshot)
+  const likelihoodVariance = calculateWindowVariance(state.likelihoodHistory, WINDOW_SIZE);
+  const likelihoodConverged = likelihoodVariance < LIKELIHOOD_EPSILON ** 2;
+
   if (!likelihoodConverged) return false;
 
-  // 2. Top-5 uncertainty must be low (rock solid)
+
+  // 3. Top-5 uncertainty must be low (rock solid)
   const top5 = getTopK(state.mu, TOP_K_CRITICAL);
   const maxSigmaTop5 = Math.max(...top5.map(id => state.sigma[id]!));
   if (maxSigmaTop5 >= SIGMA_TOP5) return false;
 
-  // 3. Top-11 uncertainty should be reasonable
+  // 4. Top-11 uncertainty should be reasonable
   const top11 = getTopK(state.mu, TOP_K_IMPORTANT);
   const maxSigmaTop11 = Math.max(...top11.map(id => state.sigma[id]!));
   if (maxSigmaTop11 >= SIGMA_TOP11) return false;
 
-  // 4. Top-11 rank stability
+  // 5. Top-K rank stability using Kendall tau (more robust than set comparison)
   const currentRanking = state.rankHistory[state.rankHistory.length - 1]!;
   const pastRanking = state.rankHistory[state.rankHistory.length - WINDOW_SIZE - 1]!;
-  
-  // Top 5 must be exactly the same
-  const top5Stable = currentRanking.slice(0, 5).every(
+
+  // Top 3 must be exactly the same (most critical)
+  const top3Stable = currentRanking.slice(0, 3).every(
     (id, idx) => pastRanking[idx] === id
   );
-  if (!top5Stable) return false;
-  
-  // Top 11 must have same items (order can vary slightly for 6-11)
-  const currentTop11Set = new Set(currentRanking.slice(0, 11));
-  const pastTop11Set = new Set(pastRanking.slice(0, 11));
-  const top11SameItems = [...currentTop11Set].every(id => pastTop11Set.has(id));
-  if (!top11SameItems) return false;
+  if (!top3Stable) return false;
+
+  // Use Kendall tau for Top-11 stability only (not full ranking)
+  const currentTop11 = currentRanking.slice(0, TOP_K_IMPORTANT);
+  const pastTop11 = pastRanking.slice(0, TOP_K_IMPORTANT);
+  const tau = kendallTau(currentTop11, pastTop11);
+  const KENDALL_TAU_THRESHOLD = isInconsistent ? 0.8 : 0.9;
+  if (tau < KENDALL_TAU_THRESHOLD) return false;
+
+  // 6. For inconsistent users, require sustained stability across windows
+  if (isInconsistent) {
+    const recentRankings = state.rankHistory.slice(-3);
+    if (recentRankings.length >= 3) {
+      const tau1 = kendallTau(
+        recentRankings[0]!.slice(0, TOP_K_IMPORTANT),
+        recentRankings[1]!.slice(0, TOP_K_IMPORTANT)
+      );
+      const tau2 = kendallTau(
+        recentRankings[1]!.slice(0, TOP_K_IMPORTANT),
+        recentRankings[2]!.slice(0, TOP_K_IMPORTANT)
+      );
+      if (tau1 < 0.85 || tau2 < 0.85) return false;
+    }
+  }
 
   return true;
 }
@@ -412,4 +507,20 @@ export function getConfidenceInfo(state: BradleyTerryState): {
 
 export function getFinalRanking(state: BradleyTerryState): string[] {
   return [...state.allCardIds].sort((a, b) => state.mu[b]! - state.mu[a]!);
+}
+
+/**
+ * Get remaining comparisons count for UI display
+ * Returns the effective max (extended if user is inconsistent)
+ */
+export function getEffectiveMaxComparisons(state: BradleyTerryState): number {
+  return getExtendedMaxComparisons(state);
+}
+
+/**
+ * Check if comparisons have been extended due to inconsistency
+ */
+export function hasExtendedComparisons(state: BradleyTerryState): boolean {
+  const cycleRatio = state.used > 0 ? state.cycleCount / state.used : 0;
+  return cycleRatio > INCONSISTENCY_THRESHOLD;
 }
