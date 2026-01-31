@@ -29,48 +29,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RotateCcw } from "lucide-react";
 import { useLocale } from "@/lib/localeProvider";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-
-// Cookie utilities
-const setCookie = (name: string, value: string, days: number = 365) => {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
-};
-
-const getCookie = (name: string): string | null => {
-  const nameEQ = name + "=";
-  const ca = document.cookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-    if (c.indexOf(nameEQ) === 0) {
-      return decodeURIComponent(c.substring(nameEQ.length, c.length));
-    }
-  }
-  return null;
-};
-
-// Save columns to cookies
-const saveColumnsToCookies = (columns: Columns) => {
-  try {
-    setCookie("valuesCardSortColumns", JSON.stringify(columns));
-  } catch (e) {
-    console.warn("Failed to save columns to cookies:", e);
-  }
-};
-
-// Clear saved cookies
-const clearSavedCookies = () => {
-  setCookie("valuesCardSortColumns", "", -1); // Expire immediately
-};
-
-type ColumnType = "mostImportant" | "moderatelyImportant" | "leastImportant";
-
-interface Columns {
-  mostImportant: string[];
-  moderatelyImportant: string[];
-  leastImportant: string[];
-}
+import {
+  getCookie,
+  saveColumnsToCookies,
+  clearSavedCookies,
+  type ColumnType,
+  type Columns,
+} from "@/lib/cookies";
+import { balanceColumns, findColumnForCard } from "@/lib/columnUtils";
 
 export default function Home() {
   const { t, locale } = useLocale();
@@ -84,50 +50,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [isRebalancing, setIsRebalancing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isManualMobileMovement, setIsManualMobileMovement] = useState(false);
 
-  const balanceColumns = (columnsToBalance: Columns): Columns => {
-    const balancedColumns = { ...columnsToBalance };
-    const columnOrder: ColumnType[] = ["mostImportant", "moderatelyImportant", "leastImportant"];
-    const distribution = calculateColumnDistribution(values.length);
-
-    // Balance from left to right
-    for (let i = 0; i < columnOrder.length; i++) {
-      const currentCol = columnOrder[i];
-      const nextCol = columnOrder[i + 1];
-
-      // If current column has more than its target, move overflow to next column
-      while (balancedColumns[currentCol].length > distribution[i] && nextCol) {
-        const overflow = balancedColumns[currentCol].pop()!;
-        balancedColumns[nextCol].unshift(overflow);
-      }
-    }
-
-    // Balance from right to left (in case last column overflowed)
-    for (let i = columnOrder.length - 1; i > 0; i--) {
-      const currentCol = columnOrder[i];
-      const prevCol = columnOrder[i - 1];
-
-      // If current column has more than its target, move overflow to previous column
-      while (balancedColumns[currentCol].length > distribution[i]) {
-        const overflow = balancedColumns[currentCol].shift()!;
-        balancedColumns[prevCol].push(overflow);
-      }
-    }
-
-    // Fill underflow from next column
-    for (let i = 0; i < columnOrder.length - 1; i++) {
-      const currentCol = columnOrder[i];
-      const nextCol = columnOrder[i + 1];
-
-      while (balancedColumns[currentCol].length < distribution[i] && balancedColumns[nextCol].length > 0) {
-        const card = balancedColumns[nextCol].shift()!;
-        balancedColumns[currentCol].push(card);
-      }
-    }
-
-    return balancedColumns;
-  };
 
   // Initialize on mount
   useEffect(() => {
@@ -197,8 +120,6 @@ export default function Home() {
 
   // Mobile handlers for up/down buttons - linked-list structure
   const handleMoveCard = (cardId: string, direction: 'up' | 'down') => {
-    // Mark that this is a manual mobile movement
-    setIsManualMobileMovement(true);
     
     // Create a flat list representing the linked-list structure
     const flatList: string[] = [];
@@ -228,10 +149,12 @@ export default function Home() {
     
     // Redistribute the flat list back to columns (this maintains the visual column structure)
     const newColumns = { ...columns };
+    const distribution = calculateColumnDistribution(newFlatList.length);
+    let startIndex = 0;
     columnOrder.forEach((columnName, columnIndex) => {
-      const start = columnIndex * Math.ceil(newFlatList.length / columnOrder.length);
-      const end = start + Math.ceil(newFlatList.length / columnOrder.length);
-      newColumns[columnName] = newFlatList.slice(start, end);
+      const endIndex = startIndex + distribution[columnIndex];
+      newColumns[columnName] = newFlatList.slice(startIndex, endIndex);
+      startIndex = endIndex;
     });
     
     // Apply rebalancing to maintain proper column distribution
@@ -239,8 +162,8 @@ export default function Home() {
     setColumns(balancedColumns);
     saveColumnsToCookies(balancedColumns);
     
-    // Reset the manual movement flag after a short delay
-    setTimeout(() => setIsManualMobileMovement(false), 100);
+    // Reset after a short delay
+    setTimeout(() => {}, 100);
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -258,13 +181,7 @@ export default function Home() {
     const overId = over.id as string;
 
     // Find which column the active card is in
-    let sourceColumn: ColumnType | null = null;
-    for (const [columnName, cardIds] of Object.entries(columns)) {
-      if (cardIds.includes(activeId)) {
-        sourceColumn = columnName as ColumnType;
-        break;
-      }
-    }
+    const sourceColumn = findColumnForCard(columns, activeId);
 
     if (!sourceColumn) return;
 
@@ -298,15 +215,10 @@ export default function Home() {
         newColumns[targetColumn].push(activeId);
       }
 
-      // Balance columns to maintain 11 cards per column (but skip if this is a manual mobile movement)
-      if (!isManualMobileMovement) {
-        const balancedColumns = balanceColumns(newColumns);
-        setColumns(balancedColumns);
-        saveColumnsToCookies(balancedColumns);
-      } else {
-        setColumns(newColumns);
-        saveColumnsToCookies(newColumns);
-      }
+      // Balance columns to maintain calculated distribution
+      const balancedColumns = balanceColumns(newColumns);
+      setColumns(balancedColumns);
+      saveColumnsToCookies(balancedColumns);
     }
   };
 
@@ -323,13 +235,7 @@ export default function Home() {
     const overId = over.id as string;
 
     // Find which column the active card is in
-    let sourceColumn: ColumnType | null = null;
-    for (const [columnName, cardIds] of Object.entries(columns)) {
-      if (cardIds.includes(activeId)) {
-        sourceColumn = columnName as ColumnType;
-        break;
-      }
-    }
+    const sourceColumn = findColumnForCard(columns, activeId);
 
     if (!sourceColumn) return;
 
@@ -369,19 +275,12 @@ export default function Home() {
       // Note: The actual move was already handled in handleDragOver
       // Now we just need to rebalance columns to maintain 11 cards each
       
-      // Balance columns to maintain 11 cards per column (but skip if this is a manual mobile movement)
-      if (!isManualMobileMovement) {
-        const balancedColumns = balanceColumns(newColumns);
-        
-        // Use setTimeout to ensure animation plays
-        setColumns(balancedColumns);
-        saveColumnsToCookies(balancedColumns);
-        setTimeout(() => setIsRebalancing(false), 250);
-      } else {
-        setColumns(newColumns);
-        saveColumnsToCookies(newColumns);
-        setTimeout(() => setIsRebalancing(false), 250);
-      }
+      // Balance columns to maintain calculated distribution
+      // Use setTimeout to ensure animation plays
+      const balancedColumns = balanceColumns(newColumns);
+      setColumns(balancedColumns);
+      saveColumnsToCookies(balancedColumns);
+      setTimeout(() => setIsRebalancing(false), 250);
     }
   };
 
@@ -519,23 +418,20 @@ export default function Home() {
 
               <DragOverlay>
                 {activeValue ? (
-                  <Card className="cursor-grabbing shadow-2xl rotate-3 scale-105 bg-white border-2 border-primary">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-sm md:text-base uppercase tracking-wide mb-1">
-                            {activeValue.name}
-                          </h3>
-                          <p className="hidden md:block text-xs text-muted-foreground leading-relaxed">
-                            {activeValue.description}
-                          </p>
-                          <p className="md:hidden text-xs text-muted-foreground line-clamp-2">
-                            {activeValue.description}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+              <Card className="cursor-grabbing shadow-2xl rotate-3 scale-105 bg-white border-2 border-primary">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-sm md:text-base uppercase tracking-wide mb-1">
+                        {activeValue.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                        {activeValue.description}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
                 ) : null}
               </DragOverlay>
             </DndContext>

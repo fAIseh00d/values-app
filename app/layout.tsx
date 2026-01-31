@@ -1,10 +1,12 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 import "./globals.css";
-import { LocaleProvider } from '@/lib/localeProvider';
+import { LocaleProvider } from "@/lib/localeProvider";
+import { LocaleSetter } from "@/components/LocaleSetter";
 
 export const metadata: Metadata = {
-  title: 'Values Card Sort - Prioritize Your Personal Values',
-  description: 'An interactive card sorting exercise based on Dr. Judy Ho\'s Stop Self-Sabotage to help you identify and prioritize your personal values.',
+  title: "Values Card Sort - Prioritize Your Personal Values",
+  description:
+    "An interactive card sorting exercise based on Dr. Judy Ho's Stop Self-Sabotage to help you identify and prioritize your personal values.",
 };
 
 export default function RootLayout({
@@ -13,10 +15,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html>
       <body className="antialiased">
         <LocaleProvider>
-          {children}
+          <LocaleSetter>{children}</LocaleSetter>
         </LocaleProvider>
       </body>
     </html>

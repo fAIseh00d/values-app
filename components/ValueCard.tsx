@@ -3,8 +3,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent } from "./ui/card";
-import { Tooltip } from "./ui/tooltip";
-import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LocalizedValue } from "@/lib/values";
 import { useLocale } from "@/lib/localeProvider";
@@ -91,21 +89,6 @@ export function ValueCard({ value, index, isMobile = false, onMoveCard }: ValueC
               </div>
             )}
 
-            {/* Desktop: Info icon with tooltip */}
-            {!isMobile && (
-              <div className="hidden md:flex-shrink-0">
-                <Tooltip content={value.description} side="left">
-                  <button
-                    className="p-1 rounded-full hover:bg-muted"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <Info className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                </Tooltip>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
