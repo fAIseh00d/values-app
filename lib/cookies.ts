@@ -18,10 +18,18 @@ export const getCookie = (name: string): string | null => {
   return null;
 };
 
-// Save columns to cookies
-export const saveColumnsToCookies = (columns: Columns) => {
+// Save columns or order to cookies
+const columnOrder: ColumnType[] = ["mostImportant", "moderatelyImportant", "leastImportant"];
+
+export const saveColumnsToCookies = (columnsOrOrder: Columns | string[]) => {
   try {
-    setCookie("valuesCardSortColumns", JSON.stringify(columns));
+    const payload = Array.isArray(columnsOrOrder)
+      ? columnsOrOrder
+      : columnOrder.reduce<string[]>((result, columnName) => {
+          result.push(...columnsOrOrder[columnName]);
+          return result;
+        }, []);
+    setCookie("valuesCardSortColumns", JSON.stringify(payload));
   } catch (e) {
     console.warn("Failed to save columns to cookies:", e);
   }

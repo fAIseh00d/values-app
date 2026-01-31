@@ -17,12 +17,11 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 import { SortColumn } from "@/components/SortColumn";
 import { IntroModal } from "@/components/IntroModal";
-import { ValueCard } from "@/components/ValueCard";
 import {
-  initializeColumns,
   values,
   calculateColumnDistribution,
   getLocalizedValueMap,
+  shuffleArray,
 } from "@/lib/values";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,20 +35,31 @@ import {
   type ColumnType,
   type Columns,
 } from "@/lib/cookies";
-import { balanceColumns, findColumnForCard } from "@/lib/columnUtils";
+import {
+  balanceColumns,
+  columnsFromOrder,
+  flattenColumns,
+  findColumnForCard,
+} from "@/lib/columnUtils";
+import {
+  createLinkedListFromOrder,
+  linkedListToArray,
+  type LinkedListState,
+} from "@/lib/linkedList";
 
 export default function Home() {
   const { t, locale } = useLocale();
-  const [columns, setColumns] = useState<Columns>({
-    mostImportant: [],
-    moderatelyImportant: [],
-    leastImportant: [],
+  const [linkedList, setLinkedList] = useState<LinkedListState>(() => {
+    const initialOrder = shuffleArray(values.map((value) => value.id));
+    return createLinkedListFromOrder(initialOrder);
   });
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isRebalancing, setIsRebalancing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const currentOrder = useMemo(() => linkedListToArray(linkedList), [linkedList]);
+  const columns = useMemo(() => columnsFromOrder(currentOrder), [currentOrder]);
 
 
   // Initialize on mount
@@ -66,28 +76,35 @@ export default function Home() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     
-    // Try to load saved columns from cookies
-    const savedColumns = getCookie("valuesCardSortColumns");
-    let columnsToSet: Columns;
+    const fallbackOrder = shuffleArray(values.map((value) => value.id));
+    const savedOrder = getCookie("valuesCardSortColumns");
+    let orderToSet: string[] = fallbackOrder;
+
+    const isColumnsObject = (value: unknown): value is Columns => {
+      return (
+        typeof value === "object" &&
+        value !== null &&
+        Array.isArray((value as Columns).mostImportant) &&
+        Array.isArray((value as Columns).moderatelyImportant) &&
+        Array.isArray((value as Columns).leastImportant)
+      );
+    };
     
-    if (savedColumns) {
+    if (savedOrder) {
       try {
-        const parsed = JSON.parse(savedColumns);
-        // Validate the saved data structure
-        if (parsed.mostImportant && parsed.moderatelyImportant && parsed.leastImportant) {
-          columnsToSet = balanceColumns(parsed);
-        } else {
-          columnsToSet = balanceColumns(initializeColumns());
+        const parsed = JSON.parse(savedOrder);
+        if (Array.isArray(parsed) && parsed.every((item) => typeof item === "string")) {
+          orderToSet = parsed;
+        } else if (isColumnsObject(parsed)) {
+          const balanced = balanceColumns(parsed);
+          orderToSet = flattenColumns(balanced);
         }
       } catch (e) {
         console.warn("Failed to parse saved columns, using default:", e);
-        columnsToSet = balanceColumns(initializeColumns());
       }
-    } else {
-      columnsToSet = balanceColumns(initializeColumns());
     }
-    
-    setColumns(columnsToSet);
+
+    setLinkedList(createLinkedListFromOrder(orderToSet));
 
     // Check if user has seen intro before
     const hasSeenIntro = localStorage.getItem("valuesCardSortIntroSeen");
@@ -118,51 +135,40 @@ export default function Home() {
     })
   );
 
+  const persistColumns = (updatedColumns: Columns) => {
+    const balancedColumns = balanceColumns(updatedColumns);
+    const nextOrder = flattenColumns(balancedColumns);
+    setLinkedList(createLinkedListFromOrder(nextOrder));
+    saveColumnsToCookies(nextOrder);
+  };
+
+  const persistOrder = (order: string[]) => {
+    persistColumns(columnsFromOrder(order));
+  };
+
   // Mobile handlers for up/down buttons - linked-list structure
   const handleMoveCard = (cardId: string, direction: 'up' | 'down') => {
-    
-    // Create a flat list representing the linked-list structure
-    const flatList: string[] = [];
-    const columnOrder: ColumnType[] = ["mostImportant", "moderatelyImportant", "leastImportant"];
-    
-    // Flatten all columns in order (Column 1 -> Column 2 -> Column 3)
-    columnOrder.forEach(columnName => {
-      flatList.push(...columns[columnName]);
-    });
-    
-    // Find the position of the card in the flat list
+    const flatList = [...currentOrder];
     const flatIndex = flatList.indexOf(cardId);
-    if (flatIndex === -1) return;
-    
-    const newFlatList = [...flatList];
-    
-    // Move card in the flat linked-list structure (non-circular)
-    if (direction === 'up' && flatIndex > 0) {
-      // Swap with card above in the flat list
-      [newFlatList[flatIndex], newFlatList[flatIndex - 1]] = 
-        [newFlatList[flatIndex - 1], newFlatList[flatIndex]];
-    } else if (direction === 'down' && flatIndex < newFlatList.length - 1) {
-      // Swap with card below in the flat list
-      [newFlatList[flatIndex], newFlatList[flatIndex + 1]] = 
-        [newFlatList[flatIndex + 1], newFlatList[flatIndex]];
+
+    if (flatIndex === -1) {
+      return;
     }
-    
-    // Redistribute the flat list back to columns (this maintains the visual column structure)
-    const newColumns = { ...columns };
-    const distribution = calculateColumnDistribution(newFlatList.length);
-    let startIndex = 0;
-    columnOrder.forEach((columnName, columnIndex) => {
-      const endIndex = startIndex + distribution[columnIndex];
-      newColumns[columnName] = newFlatList.slice(startIndex, endIndex);
-      startIndex = endIndex;
-    });
-    
-    // Apply rebalancing to maintain proper column distribution
-    const balancedColumns = balanceColumns(newColumns);
-    setColumns(balancedColumns);
-    saveColumnsToCookies(balancedColumns);
-    
-    // Reset after a short delay
+
+    let moved = false;
+    if (direction === 'up' && flatIndex > 0) {
+      [flatList[flatIndex - 1], flatList[flatIndex]] = [flatList[flatIndex], flatList[flatIndex - 1]];
+      moved = true;
+    } else if (direction === 'down' && flatIndex < flatList.length - 1) {
+      [flatList[flatIndex], flatList[flatIndex + 1]] = [flatList[flatIndex + 1], flatList[flatIndex]];
+      moved = true;
+    }
+
+    if (!moved) {
+      return;
+    }
+
+    persistOrder(flatList);
     setTimeout(() => {}, 100);
   };
 
@@ -215,10 +221,7 @@ export default function Home() {
         newColumns[targetColumn].push(activeId);
       }
 
-      // Balance columns to maintain calculated distribution
-      const balancedColumns = balanceColumns(newColumns);
-      setColumns(balancedColumns);
-      saveColumnsToCookies(balancedColumns);
+      persistColumns(newColumns);
     }
   };
 
@@ -264,9 +267,8 @@ export default function Home() {
 
       if (oldIndex !== -1 && newIndex !== -1) {
         newColumns[sourceColumn] = arrayMove(columnCards, oldIndex, newIndex);
+        persistColumns(newColumns);
       }
-      setColumns(newColumns);
-      saveColumnsToCookies(newColumns);
       setIsRebalancing(false);
     } else {
       // Cross-column move - trigger rebalancing animation
@@ -278,17 +280,14 @@ export default function Home() {
       // Balance columns to maintain calculated distribution
       // Use setTimeout to ensure animation plays
       const balancedColumns = balanceColumns(newColumns);
-      setColumns(balancedColumns);
-      saveColumnsToCookies(balancedColumns);
+      persistColumns(balancedColumns);
       setTimeout(() => setIsRebalancing(false), 250);
     }
   };
 
   const handleReset = () => {
-    const initialized = initializeColumns();
-    const balancedColumns = balanceColumns(initialized);
-    setColumns(balancedColumns);
-    saveColumnsToCookies(balancedColumns);
+    const shuffledOrder = shuffleArray(values.map((value) => value.id));
+    setLinkedList(createLinkedListFromOrder(shuffledOrder));
     clearSavedCookies();
   };
 

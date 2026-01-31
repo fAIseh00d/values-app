@@ -14,15 +14,17 @@
   - ✅ Reset functionality to shuffle cards
   - ✅ **Cross-column drag-and-drop animations** - Cards now animate smoothly when moving between different columns
   - ✅ **Persistent state via cookies** - Card positions are saved automatically and restored between sessions
+- ✅ **Canonical linked-list order** - Added `lib/linkedList.ts`, derive columns with `columnsFromOrder`, and persist the flattened sequence so every interaction updates a single authoritative order.
   - ✅ Build succeeds, dev server running on localhost:3000
-  
-- **What's in progress**: Testing and deployment
+- 
+- **What's in progress**: Testing, deployment, and prepping pairwise prompt mechanics
   
 - **What's left**: 
-  - Manual testing in browser (desktop and mobile views) - verify drag-and-drop animations, spill-over logic, and persistent state
-  - Test with different card counts by editing the JSON file
-  - Push to main and deploy to GitHub Pages
+  - Manual testing in browser (desktop and mobile views) - verify drag-and-drop animations, spill-over logic, and persistent state now that the order is list-backed.
+  - Test with different card counts by editing the JSON file.
+  - Outline/pairwise prompt logic that relies on the canonical order before implementing auto sorting.
+  - Push to main and deploy to GitHub Pages.
   
 - **Known issues**: None currently.
 
-- **Evolution**: Successfully built full-featured Values Card Sort web application with all planned features implemented. Fixed critical animation issue that prevented smooth cross-column dragging. Implemented robust spill-over logic that maintains perfect 11-card distribution across columns at all times. Added persistent state functionality so users don't lose their progress between sessions. Extracted card data to external JSON file and implemented dynamic column balancing system that automatically adapts to any number of cards.
+- **Evolution**: Successfully built full-featured Values Card Sort web application with all planned features implemented. Fixed critical animation issue that prevented smooth cross-column dragging. Implemented robust spill-over logic that maintains perfect 11-card distribution across columns at all times. Added persistent state functionality so users don't lose their progress between sessions. Extracted card data to external JSON file and implemented dynamic column balancing system that automatically adapts to any number of cards. Recently refactored the card order into a canonical linked list to support future pairwise auto-sorting logic.

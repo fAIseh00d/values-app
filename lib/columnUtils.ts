@@ -1,11 +1,18 @@
 import type { ColumnType, Columns } from '@/lib/cookies';
 import { calculateColumnDistribution } from './values';
-import { values } from './values';
+
+export const columnOrder: ColumnType[] = [
+  "mostImportant",
+  "moderatelyImportant",
+  "leastImportant",
+];
 
 export function balanceColumns(columnsToBalance: Columns): Columns {
   const balancedColumns = { ...columnsToBalance };
-  const columnOrder: ColumnType[] = ["mostImportant", "moderatelyImportant", "leastImportant"];
-  const distribution = calculateColumnDistribution(values.length);
+  const totalCards = columnOrder.reduce((sum, columnName) => {
+    return sum + balancedColumns[columnName].length;
+  }, 0);
+  const distribution = calculateColumnDistribution(totalCards);
 
   // Balance from left to right
   for (let i = 0; i < columnOrder.length; i++) {
@@ -43,6 +50,31 @@ export function balanceColumns(columnsToBalance: Columns): Columns {
   }
 
   return balancedColumns;
+}
+
+export function columnsFromOrder(order: string[]): Columns {
+  const distribution = calculateColumnDistribution(order.length);
+  const columns: Columns = {
+    mostImportant: [],
+    moderatelyImportant: [],
+    leastImportant: [],
+  };
+
+  let cursor = 0;
+  columnOrder.forEach((columnName, columnIndex) => {
+    const count = distribution[columnIndex];
+    columns[columnName] = order.slice(cursor, cursor + count);
+    cursor += count;
+  });
+
+  return columns;
+}
+
+export function flattenColumns(columns: Columns): string[] {
+  return columnOrder.reduce<string[]>((result, columnName) => {
+    result.push(...columns[columnName]);
+    return result;
+  }, []);
 }
 
 export function findColumnForCard(columns: Columns, cardId: string): ColumnType | null {
